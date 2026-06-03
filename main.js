@@ -19,6 +19,16 @@ const clearTokenBtn = document.getElementById('clearTokenBtn');
 const howItWorksToggle = document.getElementById('howItWorksToggle');
 const howItWorksBody = document.getElementById('howItWorksBody');
 
+// Auto 모드 조회 결과 편집 영역
+const fetchedValuesEl = document.getElementById('fetchedValues');
+const fetchMethodEl = document.getElementById('fetchMethod');
+const recalculateBtn = document.getElementById('recalculateBtn');
+const autoStarsInput = document.getElementById('autoStars');
+const autoPrsInput = document.getElementById('autoPrs');
+const autoCommitsInput = document.getElementById('autoCommits');
+const autoIssuesInput = document.getElementById('autoIssues');
+const autoFollowersInput = document.getElementById('autoFollowers');
+
 // 마지막 계산 결과 저장 (마크다운 복사용)
 let lastResult = null;
 
@@ -28,6 +38,47 @@ function switchMode(mode) {
   autoPanel.classList.toggle('hidden', mode !== 'auto');
   manualPanel.classList.toggle('hidden', mode !== 'manual');
   clearResults();
+  fetchedValuesEl.classList.add('hidden');
+}
+
+// Auto 모드 조회 결과를 편집 필드에 표시
+function showFetchedValues(stats) {
+  autoStarsInput.value = stats.stars;
+  autoPrsInput.value = stats.prs;
+  autoCommitsInput.value = stats.commits;
+  autoIssuesInput.value = stats.issues;
+  autoFollowersInput.value = stats.followers;
+
+  // API 방식 표시
+  if (stats.method === 'graphql') {
+    fetchMethodEl.textContent = 'Fetched via GraphQL API (same as github-readme-stats)';
+    fetchMethodEl.className = 'fetch-method graphql';
+  } else {
+    fetchMethodEl.textContent = 'Fetched via REST API — values may differ from github-readme-stats. Add a token for exact results.';
+    fetchMethodEl.className = 'fetch-method rest';
+  }
+
+  fetchedValuesEl.classList.remove('hidden');
+}
+
+// 편집 필드에서 현재 값 읽기
+function readAutoStats() {
+  return {
+    stars: parseInt(autoStarsInput.value, 10) || 0,
+    prs: parseInt(autoPrsInput.value, 10) || 0,
+    commits: parseInt(autoCommitsInput.value, 10) || 0,
+    issues: parseInt(autoIssuesInput.value, 10) || 0,
+    followers: parseInt(autoFollowersInput.value, 10) || 0
+  };
+}
+
+// 통계로 등급 계산 후 렌더링
+function calculateAndRender(stats) {
+  const includeAllCommits = allCommitsToggle.checked;
+  const result = calculateRank(stats, includeAllCommits);
+  const nextRank = calculateNextRankRequirements(result, includeAllCommits);
+  lastResult = result;
+  renderResults(result, nextRank);
 }
 
 // 자동 모드: API 조회 후 등급 계산
@@ -42,22 +93,34 @@ async function handleAnalyze() {
   analyzeBtn.disabled = true;
   analyzeBtn.textContent = 'Analyzing...';
   showLoading();
+  fetchedValuesEl.classList.add('hidden');
 
   try {
     const token = localStorage.getItem('github_token') || null;
-    const stats = await fetchUserStats(username, token);
     const includeAllCommits = allCommitsToggle.checked;
-    const result = calculateRank(stats, includeAllCommits);
-    const nextRank = calculateNextRankRequirements(result, includeAllCommits);
+    const stats = await fetchUserStats(username, token, includeAllCommits);
 
-    lastResult = result;
-    renderResults(result, nextRank);
+    // 조회된 값을 편집 필드에 표시
+    showFetchedValues(stats);
+
+    // 등급 계산 및 렌더링
+    calculateAndRender(stats);
   } catch (error) {
     showError(error.message);
   } finally {
     // 버튼 상태 복원
     analyzeBtn.disabled = false;
     analyzeBtn.textContent = 'Analyze';
+  }
+}
+
+// Auto 모드 편집 필드에서 재계산
+function handleRecalculate() {
+  try {
+    const stats = readAutoStats();
+    calculateAndRender(stats);
+  } catch (error) {
+    showError(error.message);
   }
 }
 
@@ -72,12 +135,7 @@ function handleCalculate() {
       followers: parseInt(document.getElementById('followersInput').value, 10) || 0
     };
 
-    const includeAllCommits = allCommitsToggle.checked;
-    const result = calculateRank(stats, includeAllCommits);
-    const nextRank = calculateNextRankRequirements(result, includeAllCommits);
-
-    lastResult = result;
-    renderResults(result, nextRank);
+    calculateAndRender(stats);
   } catch (error) {
     showError(error.message);
   }
@@ -151,6 +209,7 @@ usernameInput.addEventListener('keydown', (e) => {
 });
 
 calculateBtn.addEventListener('click', handleCalculate);
+recalculateBtn.addEventListener('click', handleRecalculate);
 copyBtn.addEventListener('click', handleCopyMarkdown);
 
 tokenToggle.addEventListener('click', () => toggleAccordion(tokenToggle, tokenBody));
@@ -163,6 +222,13 @@ howItWorksToggle.addEventListener('click', () => toggleAccordion(howItWorksToggl
 document.querySelectorAll('.manual-input').forEach(input => {
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleCalculate();
+  });
+});
+
+// Auto 모드 편집 필드에서 Enter 키로 재계산
+document.querySelectorAll('.auto-stat-input').forEach(input => {
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleRecalculate();
   });
 });
 

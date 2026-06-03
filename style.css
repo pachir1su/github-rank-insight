@@ -197,6 +197,34 @@ input[type="number"] {
   font-weight: 500;
 }
 
+/* 자동 모드 조회 결과 편집 영역 */
+.fetched-values {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.fetched-header {
+  margin-bottom: 12px;
+}
+
+.fetch-method {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.fetch-method.graphql {
+  color: var(--success);
+  background: rgba(63, 185, 80, 0.1);
+}
+
+.fetch-method.rest {
+  color: var(--warning);
+  background: rgba(210, 153, 34, 0.1);
+}
+
 /* 옵션 행 */
 .options-row {
   margin-top: 16px;

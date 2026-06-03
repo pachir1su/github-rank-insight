@@ -23,11 +23,41 @@
         <button class="tab" data-mode="manual">Manual Mode</button>
       </div>
 
-      <!-- 자동 모드: username 입력 -->
+      <!-- 자동 모드: username 입력 + 조회 결과 편집 -->
       <div id="autoMode" class="mode-panel">
         <div class="input-group">
           <input type="text" id="usernameInput" placeholder="GitHub username" autocomplete="off" spellcheck="false">
           <button id="analyzeBtn" class="btn-primary">Analyze</button>
+        </div>
+
+        <!-- 조회된 값 확인/수정 영역 -->
+        <div id="fetchedValues" class="fetched-values hidden">
+          <div class="fetched-header">
+            <span id="fetchMethod" class="fetch-method"></span>
+          </div>
+          <div class="manual-inputs">
+            <div class="input-field">
+              <label for="autoStars">Stars</label>
+              <input type="number" id="autoStars" class="auto-stat-input" min="0" value="0">
+            </div>
+            <div class="input-field">
+              <label for="autoPrs">Pull Requests</label>
+              <input type="number" id="autoPrs" class="auto-stat-input" min="0" value="0">
+            </div>
+            <div class="input-field">
+              <label for="autoCommits">Commits</label>
+              <input type="number" id="autoCommits" class="auto-stat-input" min="0" value="0">
+            </div>
+            <div class="input-field">
+              <label for="autoIssues">Issues</label>
+              <input type="number" id="autoIssues" class="auto-stat-input" min="0" value="0">
+            </div>
+            <div class="input-field">
+              <label for="autoFollowers">Followers</label>
+              <input type="number" id="autoFollowers" class="auto-stat-input" min="0" value="0">
+            </div>
+          </div>
+          <button id="recalculateBtn" class="btn-secondary btn-small">Recalculate</button>
         </div>
       </div>
 
@@ -109,7 +139,7 @@
           <span class="accordion-arrow"></span>
         </button>
         <div class="accordion-body hidden" id="howItWorksBody">
-          <p>This tool uses the same algorithm as <a href="https://github.com/anuraghazra/github-readme-stats" target="_blank" rel="noopener">github-readme-stats</a>.</p>
+          <p>This tool uses the same algorithm as <a href="https://github.com/anuraghazra/github-readme-stats" target="_blank" rel="noopener">github-readme-stats</a>. With a GitHub token, Auto Mode uses the <strong>GraphQL API</strong> (identical to github-readme-stats) for exact results.</p>
           <div class="formula-block">
             <p><strong>CDF Functions</strong></p>
             <code>exponential_cdf(x) = 1 - 2<sup>-x</sup></code>
