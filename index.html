@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Rank Insight</title>
+  <meta name="description" content="Analyze your GitHub Stats rank, visualize metric contributions, and find out how to level up.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+
+    <!-- 헤더 -->
+    <header class="header">
+      <h1>GitHub Rank Insight</h1>
+      <p class="subtitle">Analyze your GitHub Stats rank and find out how to level up</p>
+    </header>
+
+    <!-- 입력 영역 -->
+    <section class="input-section">
+      <div class="mode-tabs">
+        <button class="tab active" data-mode="auto">Auto Mode</button>
+        <button class="tab" data-mode="manual">Manual Mode</button>
+      </div>
+
+      <!-- 자동 모드: username 입력 -->
+      <div id="autoMode" class="mode-panel">
+        <div class="input-group">
+          <input type="text" id="usernameInput" placeholder="GitHub username" autocomplete="off" spellcheck="false">
+          <button id="analyzeBtn" class="btn-primary">Analyze</button>
+        </div>
+      </div>
+
+      <!-- 수동 모드: 지표 직접 입력 -->
+      <div id="manualMode" class="mode-panel hidden">
+        <div class="manual-inputs">
+          <div class="input-field">
+            <label for="starsInput">Stars</label>
+            <input type="number" id="starsInput" class="manual-input" min="0" value="0">
+          </div>
+          <div class="input-field">
+            <label for="prsInput">Pull Requests</label>
+            <input type="number" id="prsInput" class="manual-input" min="0" value="0">
+          </div>
+          <div class="input-field">
+            <label for="commitsInput">Commits</label>
+            <input type="number" id="commitsInput" class="manual-input" min="0" value="0">
+          </div>
+          <div class="input-field">
+            <label for="issuesInput">Issues</label>
+            <input type="number" id="issuesInput" class="manual-input" min="0" value="0">
+          </div>
+          <div class="input-field">
+            <label for="followersInput">Followers</label>
+            <input type="number" id="followersInput" class="manual-input" min="0" value="0">
+          </div>
+        </div>
+        <button id="calculateBtn" class="btn-primary">Calculate</button>
+      </div>
+
+      <!-- 공통 옵션 -->
+      <div class="options-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="allCommitsToggle">
+          <span>Include all commits (changes median from 250 to 1000)</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- 로딩 표시 -->
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Fetching data from GitHub...</p>
+    </div>
+
+    <!-- 에러 표시 -->
+    <div id="error" class="error-message hidden"></div>
+
+    <!-- 결과 영역 (JS로 동적 렌더링) -->
+    <section id="results" class="results-section hidden"></section>
+
+    <!-- 마크다운 복사 버튼 -->
+    <button id="copyMarkdownBtn" class="copy-btn hidden">Copy Markdown</button>
+
+    <!-- 하단 부가 기능 -->
+    <section class="footer-section">
+
+      <!-- GitHub Token 입력 아코디언 -->
+      <div class="accordion">
+        <button class="accordion-header" id="tokenToggle">
+          GitHub Token (Optional)
+          <span class="accordion-arrow"></span>
+        </button>
+        <div class="accordion-body hidden" id="tokenBody">
+          <p>Enter a <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">Personal Access Token</a> to increase API rate limits (60 &rarr; 5,000 requests/hour).</p>
+          <div class="token-input-group">
+            <input type="password" id="tokenInput" placeholder="ghp_...">
+            <button id="saveTokenBtn" class="btn-primary btn-small">Save</button>
+            <button id="clearTokenBtn" class="btn-secondary btn-small">Clear</button>
+          </div>
+          <p class="hint">Token is stored in localStorage only. Never sent to any server other than api.github.com.</p>
+        </div>
+      </div>
+
+      <!-- 계산 방식 설명 아코디언 -->
+      <div class="accordion">
+        <button class="accordion-header" id="howItWorksToggle">
+          How it Works
+          <span class="accordion-arrow"></span>
+        </button>
+        <div class="accordion-body hidden" id="howItWorksBody">
+          <p>This tool uses the same algorithm as <a href="https://github.com/anuraghazra/github-readme-stats" target="_blank" rel="noopener">github-readme-stats</a>.</p>
+          <div class="formula-block">
+            <p><strong>CDF Functions</strong></p>
+            <code>exponential_cdf(x) = 1 - 2<sup>-x</sup></code>
+            <code>log_normal_cdf(x) = x / (1 + x)</code>
+          </div>
+          <div class="formula-block">
+            <p><strong>Weights</strong></p>
+            <code>Stars(4) + PRs(3) + Commits(2) + Issues(1) + Followers(1) = 11</code>
+          </div>
+          <div class="formula-block">
+            <p><strong>Score</strong></p>
+            <code>score = weighted_sum / 11</code>
+            <code>percentile = (1 - score) &times; 100</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="site-footer">
+      <p>Built for the GitHub community &middot; <a href="https://github.com/pachir1su/github-rank-insight" target="_blank" rel="noopener">Source</a></p>
+    </footer>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
